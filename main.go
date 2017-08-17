@@ -30,7 +30,7 @@ func main() {
 	}
 	content, err := format(string(f))
 	if err != nil {
-		fmt.Printf(err.Error())
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 	if *write {

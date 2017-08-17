@@ -1,24 +1,8 @@
-builds:
-  -
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-      - darwin
-    goarch:
-      - amd64
+build:
+  goarch:
+    - amd64
 brew:
   github:
     owner: caarlos0
     name: homebrew-tap
   folder: Formula
-  homepage:  http://github.com/caarlos0/promfmt
-  description: Format prometheus rules files
-fpm:
-  homepage: http://github.com/caarlos0/promfmt
-  description: Format prometheus rules files
-  maintainer: Carlos Alexandro Becker <root@carlosbecker.com>
-  license: MIT
-  vendor: caarlos0
-  formats:
-    - deb
