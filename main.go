@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"text/template"
 	"time"
@@ -11,20 +14,60 @@ import (
 	"github.com/prometheus/prometheus/promql"
 )
 
-var tmpl = `ALERT {{ .Name }}
-	IF {{ .Expr }}
-	FOR {{ cleanDuration .Duration}}
-	LABELS {
-	{{- range $key, $value := .Labels }}
-		{{ $key }} = "{{ cleanLabels $value }}",
-	{{- end }}
+var write = flag.Bool("w", false, "override the source file with the formatted file")
+var name = flag.String("f", "", "file to format")
+
+func main() {
+	flag.Parse()
+	if *name == "" {
+		fmt.Println("missing file name")
+		os.Exit(2)
 	}
-	ANNOTATIONS {
-	{{- range $key, $value := .Annotations }}
-		{{ $key }} = "{{ cleanLabels $value }}",
-	{{- end }}
+	f, err := ioutil.ReadFile(*name)
+	if err != nil {
+		fmt.Printf("failed to open file: %s\n", *name)
+		os.Exit(1)
 	}
-`
+	var content = format(string(f))
+	if *write {
+		if err := ioutil.WriteFile(*name, []byte(content), 0644); err != nil {
+			fmt.Printf("failed to write file: %s\n", *name)
+			os.Exit(1)
+		}
+		return
+	}
+	fmt.Println(content)
+}
+
+func format(content string) string {
+	var result []string
+	stms, err := promql.ParseStmts(content)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	var t = template.Must(
+		template.New("formatter").Funcs(
+			template.FuncMap{
+				"cleanDuration": cleanDuration,
+				"cleanLabels":   cleanLabels,
+			},
+		).Parse(alertTemplate),
+	)
+	for _, stm := range stms {
+		alert, ok := stm.(*promql.AlertStmt)
+		if !ok {
+			result = append(result, stm.String())
+			continue
+		}
+		var buff = new(bytes.Buffer)
+		if err := t.Execute(buff, alert); err != nil {
+			log.Fatal(err.Error())
+		}
+		result = append(result, buff.String())
+	}
+	return strings.Join(result, "\n")
+}
 
 func cleanDuration(d time.Duration) string {
 	return strings.Replace(
@@ -49,44 +92,22 @@ func cleanLabels(v interface{}) string {
 		if strings.Contains(f, "}}") {
 			f = strings.Replace(f, "}}", " }}", -1)
 		}
-		fmt.Println(strings.Fields(f))
 		ss = append(ss, strings.Join(strings.Fields(f), " "))
 	}
 	return strings.Join(ss, " ")
 }
 
-func main() {
-	var content = `alert moises
-	If a >1
-	fOr 5h
-	labels {
-		a = "b",
+var alertTemplate = `ALERT {{ .Name }}
+	IF {{ .Expr }}
+	FOR {{ cleanDuration .Duration}}
+	LABELS {
+	{{- range $key, $value := .Labels }}
+		{{ $key }} = "{{ cleanLabels $value }}",
+	{{- end }}
 	}
 	ANNOTATIONS {
-		SUMMARY = "{{$labels.instance}}: High memory usage detected",
-		DESCRIPTION = "{{$labels.instance}}: Memory usage is high (current value is: {{ $value }})"
-	  }
-	`
-	stms, err := promql.ParseStmts(content)
-	if err != nil {
-		log.Fatal(err.Error())
+	{{- range $key, $value := .Annotations }}
+		{{ $key }} = "{{ cleanLabels $value }}",
+	{{- end }}
 	}
-
-	var t = template.Must(template.New("alert").Funcs(
-		template.FuncMap{
-			"cleanDuration": cleanDuration,
-			"cleanLabels":   cleanLabels,
-		},
-	).Parse(tmpl))
-	for _, stm := range stms {
-		alert, ok := stm.(*promql.AlertStmt)
-		if !ok {
-			continue
-		}
-		var buff = new(bytes.Buffer)
-		if err := t.Execute(buff, alert); err != nil {
-			log.Fatal(err.Error())
-		}
-		fmt.Println(buff.String())
-	}
-}
+`
