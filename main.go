@@ -5,11 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/prometheus/prometheus/promql"
 )
@@ -28,7 +29,11 @@ func main() {
 		fmt.Printf("failed to open file: %s\n", *name)
 		os.Exit(1)
 	}
-	var content = format(string(f))
+	content, err := format(string(f))
+	if err != nil {
+		fmt.Printf(err.Error())
+		os.Exit(1)
+	}
 	if *write {
 		if err := ioutil.WriteFile(*name, []byte(content), 0644); err != nil {
 			fmt.Printf("failed to write file: %s\n", *name)
@@ -39,11 +44,11 @@ func main() {
 	fmt.Println(content)
 }
 
-func format(content string) string {
+func format(content string) (string, error) {
 	var result []string
 	stms, err := promql.ParseStmts(content)
 	if err != nil {
-		log.Fatal(err.Error())
+		return "", errors.WithMessage(err, "failed to parse file")
 	}
 
 	var t = template.Must(
@@ -62,11 +67,11 @@ func format(content string) string {
 		}
 		var buff = new(bytes.Buffer)
 		if err := t.Execute(buff, alert); err != nil {
-			log.Fatal(err.Error())
+			return "", errors.WithMessage(err, "failed to format")
 		}
 		result = append(result, buff.String())
 	}
-	return strings.Join(result, "\n")
+	return strings.Join(result, "\n"), nil
 }
 
 func cleanDuration(d time.Duration) string {
