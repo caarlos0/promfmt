@@ -1,11 +1,8 @@
 custom_metric = sum(another_metric) BY (name)
 
 alert MyAlert
- IF custom_metric > 10
-  FOR 10m
+ IF custom_metric > 10 FOR 10m
   Labels {
 	  call= "ghostbusters",
   }
-  aNnotations {
-	  foo ="bar",
-  }
+  aNnotations { foo ="bar"}
