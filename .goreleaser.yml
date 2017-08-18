@@ -6,3 +6,5 @@ brew:
     owner: caarlos0
     name: homebrew-tap
   folder: Formula
+archive:
+  name_template: '{{ .Binary }}_{{ .Os }}_{{ .Arch }}'
