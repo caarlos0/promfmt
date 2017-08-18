@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/promql"
 )
 
@@ -74,16 +75,7 @@ func format(content string) (string, error) {
 }
 
 func cleanDuration(d time.Duration) string {
-	return strings.Replace(
-		strings.Replace(
-			strings.Replace(
-				d.String(),
-				"h0m", "h", 1,
-			),
-			"m0s", "m", 1,
-		),
-		"h0s", "h", 1,
-	)
+	return model.Duration(d).String()
 }
 
 func cleanLabels(v interface{}) string {

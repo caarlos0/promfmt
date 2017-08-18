@@ -78,12 +78,12 @@ func TestCleanDuration(t *testing.T) {
 			s: "5h",
 		},
 		{
-			d: duration("7h8m0s"),
-			s: "7h8m",
+			d: duration("1h30m"),
+			s: "90m",
 		},
 		{
-			d: duration("9h0m2s"),
-			s: "9h2s",
+			d: duration("7h8m0s"),
+			s: "428m",
 		},
 		{
 			d: duration("0h10m0s"),
