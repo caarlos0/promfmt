@@ -62,7 +62,7 @@ func format(content string) (string, error) {
 	for _, stm := range stms {
 		alert, ok := stm.(*promql.AlertStmt)
 		if !ok {
-			result = append(result, stm.String())
+			result = append(result, stm.String()+"\n")
 			continue
 		}
 		var buff = new(bytes.Buffer)
