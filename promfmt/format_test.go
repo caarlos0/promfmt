@@ -15,7 +15,7 @@ func TestFormatStm(t *testing.T) {
 		Duration: 1 * time.Second,
 	}).Format()
 	assert.NoError(err)
-	assert.Equal("ALERT my_alert\n\tIF <nil>\n\tFOR 1s\n", out)
+	assert.Equal("ALERT my_alert\n  IF <nil>\n  FOR 1s\n", out)
 }
 
 func TestCleanLabel(t *testing.T) {
