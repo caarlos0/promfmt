@@ -137,14 +137,18 @@ func cleanLabels(v interface{}) string {
 var alertTemplate = `ALERT {{ .Name }}
 	IF {{ .Expr }}
 	FOR {{ cleanDuration .Duration}}
+	{{- if .Labels }}
 	LABELS {
 	{{- range $key, $value := .Labels }}
 		{{ $key }} = "{{ cleanLabels $value }}",
 	{{- end }}
 	}
+	{{- end }}
+	{{- if .Annotations }}
 	ANNOTATIONS {
 	{{- range $key, $value := .Annotations }}
 		{{ $key }} = "{{ cleanLabels $value }}",
 	{{- end }}
 	}
+	{{- end }}
 `

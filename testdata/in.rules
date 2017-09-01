@@ -11,6 +11,21 @@ alert MyAlert
   }
   aNnotations { foo ="bar"}
 
+# sometimes people do comment in blocks
+# let's also make that work as expected...
+alert Super_Alert
+ if blah > 1
+ for 1m
+
+alert Another_alert
+  if a > 3
+  for 2s
+  labels { a="1"}
+
+ alert asdasd
+  IF b < 0
+  for 10s
+  annotations {a="{{$value}}"}
 
 # why not having multiple alerts?
 alert MyAlert
