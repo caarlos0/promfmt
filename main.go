@@ -52,7 +52,8 @@ func format(f *os.File) (string, error) {
 	var reader = bufio.NewReader(f)
 	for {
 		line, _, rerr := reader.ReadLine()
-		if rerr != nil && rerr != io.EOF {
+		var eof = rerr == io.EOF
+		if rerr != nil && !eof {
 			return "", errors.WithMessage(rerr, "failed to read file")
 		}
 		var s = string(line)
@@ -62,6 +63,9 @@ func format(f *os.File) (string, error) {
 		}
 		if s == "\n" || s == "" {
 			if len(content) == 0 {
+				if eof {
+					break
+				}
 				continue
 			}
 			stm, err := parseStm(strings.Join(content, " "))
@@ -70,7 +74,7 @@ func format(f *os.File) (string, error) {
 			}
 			result = append(result, stm)
 			content = []string{}
-			if rerr == io.EOF {
+			if eof {
 				break
 			}
 			continue
