@@ -44,8 +44,8 @@ type AlertStmt promql.AlertStmt
 
 // Format this alert statement
 func (a AlertStmt) Format() (string, error) {
-	var buff = new(bytes.Buffer)
-	var err = tmpl.Execute(buff, a)
+	var buff bytes.Buffer
+	var err = tmpl.Execute(&buff, a)
 	return buff.String(), err
 }
 

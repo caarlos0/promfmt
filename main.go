@@ -23,24 +23,31 @@ func main() {
 		fmt.Println("missing file name")
 		os.Exit(2)
 	}
-	f, err := os.Open(*name)
+	content, err := formatFile(*name)
 	if err != nil {
-		fmt.Printf("failed to open file: %s\n", *name)
-		os.Exit(1)
-	}
-	content, err := format(f)
-	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Printf("%s: %v\n", *name, err)
 		os.Exit(1)
 	}
 	if *write {
 		if err := ioutil.WriteFile(*name, []byte(content), 0644); err != nil {
-			fmt.Printf("failed to write file: %s\n", *name)
+			fmt.Printf("%s: %v\n", *name, err)
 			os.Exit(1)
 		}
 		return
 	}
 	fmt.Println(content)
+}
+
+func formatFile(name string) (string, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to open file")
+	}
+	content, err := format(f)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to format file")
+	}
+	return content, nil
 }
 
 func format(f *os.File) (string, error) {
@@ -58,26 +65,23 @@ func format(f *os.File) (string, error) {
 			result = append(result, string(s))
 			continue
 		}
-		if s == "\n" || s == "" {
-			if len(content) == 0 {
-				if eof {
-					result = append(result, "")
-					break
-				}
-				continue
-			}
-			stm, err := parseStm(strings.Join(content, " "))
-			if err != nil {
-				return "", err
-			}
-			result = append(result, stm)
-			content = []string{}
+		if s != "\n" && s != "" {
+			content = append(content, s)
+			continue
+		}
+		if len(content) == 0 {
 			if eof {
+				result = append(result, "")
 				break
 			}
 			continue
 		}
-		content = append(content, s)
+		stm, err := parseStm(strings.Join(content, " "))
+		if err != nil {
+			return "", err
+		}
+		result = append(result, stm)
+		content = []string{}
 	}
 	return strings.Join(result, "\n"), nil
 }
