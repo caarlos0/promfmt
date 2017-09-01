@@ -22,7 +22,7 @@ func TestFormatFile(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	ioutil.WriteFile("testdata/out.rules", []byte(out), 0644)
+	// ioutil.WriteFile("testdata/out.rules", []byte(out), 0644)
 	if string(expected) != out {
 		t.Error("failed to format file, got:", out)
 	}
