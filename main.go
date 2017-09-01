@@ -24,17 +24,21 @@ var (
 func main() {
 	app.Version("promfmt version " + version)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
-	content, err := formatFile(*name)
-	if err != nil {
+	if err := processFile(*name, *write); err != nil {
 		kingpin.Fatalf("%s: %v\n", *name, err)
 	}
-	if *write {
-		if err := ioutil.WriteFile(*name, []byte(content), 0644); err != nil {
-			kingpin.Fatalf("%s: %v\n", *name, err)
-		}
-		return
+}
+
+func processFile(name string, write bool) error {
+	content, err := formatFile(name)
+	if err != nil {
+		return err
+	}
+	if write {
+		return ioutil.WriteFile(name, []byte(content), 0644)
 	}
 	fmt.Println(content)
+	return nil
 }
 
 func formatFile(name string) (string, error) {
