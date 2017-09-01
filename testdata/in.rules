@@ -10,3 +10,13 @@ alert MyAlert
 	  call= "ghostbusters",
   }
   aNnotations { foo ="bar"}
+
+
+# why not having multiple alerts?
+alert MyAlert
+ IF custom_metric{priority = 'high'} > 10 FOR 10s
+  Labels {
+	  call= "ghostbusters",
+    priority='page',
+  }
+  aNnotations { foo ="bar", description="a very high priority alert with {{$value}}"}
