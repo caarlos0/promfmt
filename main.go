@@ -15,15 +15,19 @@ import (
 )
 
 var (
+	version = "master"
+
 	write = kingpin.Flag(
 		"write", "override the source file with the formatted file",
 	).Short('w').Bool()
+
 	name = kingpin.Arg(
 		"file", "path to file to be formatted",
 	).Required().String()
 )
 
 func main() {
+	kingpin.Version(version)
 	kingpin.Parse()
 	content, err := formatFile(*name)
 	if err != nil {
