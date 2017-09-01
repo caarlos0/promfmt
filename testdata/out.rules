@@ -1,5 +1,7 @@
+# this is my custom metric
 custom_metric{} = sum(another_metric) BY (name)
 
+# this will alert when blah blah blah blah
 ALERT MyAlert
 	IF custom_metric > 10
 	FOR 10m
