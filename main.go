@@ -2,18 +2,15 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"strings"
-	"text/template"
-	"time"
 
+	"github.com/caarlos0/promfmt/format"
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/model"
 	"github.com/prometheus/prometheus/promql"
 )
 
@@ -31,7 +28,7 @@ func main() {
 		fmt.Printf("failed to open file: %s\n", *name)
 		os.Exit(1)
 	}
-	content, err := format(f)
+	content, err := formatFile(f)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -46,7 +43,7 @@ func main() {
 	fmt.Println(content)
 }
 
-func format(f *os.File) (string, error) {
+func formatFile(f *os.File) (string, error) {
 	var result []string
 	var content []string
 	var reader = bufio.NewReader(f)
@@ -91,64 +88,17 @@ func parseStm(content string) (string, error) {
 	if err != nil {
 		return "", errors.WithMessage(err, "failed to parse file")
 	}
-
-	var t = template.Must(
-		template.New("formatter").Funcs(
-			template.FuncMap{
-				"cleanDuration": cleanDuration,
-				"cleanLabels":   cleanLabels,
-			},
-		).Parse(alertTemplate),
-	)
 	for _, stm := range stms {
 		alert, ok := stm.(*promql.AlertStmt)
 		if !ok {
 			result = append(result, stm.String()+"\n")
 			continue
 		}
-		var buff = new(bytes.Buffer)
-		if err := t.Execute(buff, alert); err != nil {
-			return "", errors.WithMessage(err, "failed to format")
+		str, err := format.AlertStmt(*alert).Format()
+		if err != nil {
+			return "", err
 		}
-		result = append(result, buff.String())
+		result = append(result, str)
 	}
 	return strings.Join(result, "\n"), nil
 }
-
-func cleanDuration(d time.Duration) string {
-	return model.Duration(d).String()
-}
-
-func cleanLabels(v interface{}) string {
-	var s = fmt.Sprintf("%v", v)
-	var ss []string
-	for _, f := range strings.Fields(s) {
-		if strings.Contains(f, "{{") {
-			f = strings.Replace(f, "{{", "{{ ", -1)
-		}
-		if strings.Contains(f, "}}") {
-			f = strings.Replace(f, "}}", " }}", -1)
-		}
-		ss = append(ss, strings.Join(strings.Fields(f), " "))
-	}
-	return strings.Join(ss, " ")
-}
-
-var alertTemplate = `ALERT {{ .Name }}
-	IF {{ .Expr }}
-	FOR {{ cleanDuration .Duration}}
-	{{- if .Labels }}
-	LABELS {
-	{{- range $key, $value := .Labels }}
-		{{ $key }} = "{{ cleanLabels $value }}",
-	{{- end }}
-	}
-	{{- end }}
-	{{- if .Annotations }}
-	ANNOTATIONS {
-	{{- range $key, $value := .Annotations }}
-		{{ $key }} = "{{ cleanLabels $value }}",
-	{{- end }}
-	}
-	{{- end }}
-`
