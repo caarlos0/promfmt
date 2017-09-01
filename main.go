@@ -27,13 +27,11 @@ func main() {
 	kingpin.Parse()
 	content, err := formatFile(*name)
 	if err != nil {
-		fmt.Printf("%s: %v\n", *name, err)
-		os.Exit(1)
+		kingpin.Fatalf("%s: %v\n", *name, err)
 	}
 	if *write {
 		if err := ioutil.WriteFile(*name, []byte(content), 0644); err != nil {
-			fmt.Printf("%s: %v\n", *name, err)
-			os.Exit(1)
+			kingpin.Fatalf("%s: %v\n", *name, err)
 		}
 		return
 	}
@@ -45,11 +43,7 @@ func formatFile(name string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to open file")
 	}
-	content, err := format(f)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to format file")
-	}
-	return content, nil
+	return format(f)
 }
 
 func format(f *os.File) (string, error) {
