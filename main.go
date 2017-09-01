@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -24,12 +26,12 @@ func main() {
 		fmt.Println("missing file name")
 		os.Exit(2)
 	}
-	f, err := ioutil.ReadFile(*name)
+	f, err := os.Open(*name)
 	if err != nil {
 		fmt.Printf("failed to open file: %s\n", *name)
 		os.Exit(1)
 	}
-	content, err := format(string(f))
+	content, err := format(f)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -44,7 +46,46 @@ func main() {
 	fmt.Println(content)
 }
 
-func format(content string) (string, error) {
+func format(f *os.File) (string, error) {
+	var result []string
+	var content []string
+	var reader = bufio.NewReader(f)
+	for {
+		line, _, rerr := reader.ReadLine()
+		var eof = rerr == io.EOF
+		if rerr != nil && !eof {
+			return "", errors.WithMessage(rerr, "failed to read file")
+		}
+		var s = string(line)
+		if strings.HasPrefix(s, "#") {
+			result = append(result, string(s))
+			continue
+		}
+		if s == "\n" || s == "" {
+			if len(content) == 0 {
+				if eof {
+					result = append(result, "")
+					break
+				}
+				continue
+			}
+			stm, err := parseStm(strings.Join(content, " "))
+			if err != nil {
+				return "", err
+			}
+			result = append(result, stm)
+			content = []string{}
+			if eof {
+				break
+			}
+			continue
+		}
+		content = append(content, s)
+	}
+	return strings.Join(result, "\n"), nil
+}
+
+func parseStm(content string) (string, error) {
 	var result []string
 	stms, err := promql.ParseStmts(content)
 	if err != nil {
@@ -96,14 +137,18 @@ func cleanLabels(v interface{}) string {
 var alertTemplate = `ALERT {{ .Name }}
 	IF {{ .Expr }}
 	FOR {{ cleanDuration .Duration}}
+	{{- if .Labels }}
 	LABELS {
 	{{- range $key, $value := .Labels }}
 		{{ $key }} = "{{ cleanLabels $value }}",
 	{{- end }}
 	}
+	{{- end }}
+	{{- if .Annotations }}
 	ANNOTATIONS {
 	{{- range $key, $value := .Annotations }}
 		{{ $key }} = "{{ cleanLabels $value }}",
 	{{- end }}
 	}
+	{{- end }}
 `

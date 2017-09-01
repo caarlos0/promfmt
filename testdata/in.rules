@@ -1,8 +1,43 @@
+# this is my custom metric
 custom_metric = sum(another_metric) BY (name)
 
+
+
+# this will alert when blah blah blah blah
 alert MyAlert
  IF custom_metric > 10 FOR 10m
   Labels {
 	  call= "ghostbusters",
   }
   aNnotations { foo ="bar"}
+
+# sometimes people do comment in blocks
+# let's also make that work as expected...
+alert Super_Alert
+ if blah > 1
+ for 1m
+
+alert Another_alert
+  if a > 3
+  for 2s
+  labels { a="1"}
+
+ alert asdasd
+  IF b < 0
+  for 10s
+  annotations {a="{{$value}}"}
+
+# why not having multiple alerts?
+alert MyAlert
+ IF custom_metric{priority = 'high'} > 10 FOR 10s
+  Labels {
+	  call= "ghostbusters",
+    priority='page',
+  }
+  aNnotations { foo ="bar", description="a very high priority alert with {{$value}}"}
+
+
+
+# several empty lines at the end, as well as a comment in the middle of them
+
+

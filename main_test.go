@@ -2,12 +2,13 @@ package main
 
 import (
 	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestFormatFile(t *testing.T) {
-	in, err := ioutil.ReadFile("testdata/in.rules")
+	in, err := os.Open("testdata/in.rules")
 	if err != nil {
 		t.Error(err)
 	}
@@ -17,22 +18,22 @@ func TestFormatFile(t *testing.T) {
 		t.Error(err)
 	}
 
-	out, err := format(string(in))
+	out, err := format(in)
 	if err != nil {
 		t.Error(err)
 	}
+	// ioutil.WriteFile("testdata/out.rules", []byte(out), 0644)
 	if string(expected) != out {
 		t.Error("failed to format file, got:", out)
 	}
-
 }
 
 func TestFormatInvalidFile(t *testing.T) {
-	in, err := ioutil.ReadFile("testdata/invalid.rules")
+	in, err := os.Open("testdata/invalid.rules")
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = format(string(in))
+	_, err = format(in)
 	if err == nil {
 		t.Error("expected an error, got nil")
 	}
