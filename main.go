@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/caarlos0/promfmt/format"
+	"github.com/caarlos0/promfmt/promfmt"
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/promql"
 )
@@ -28,7 +28,7 @@ func main() {
 		fmt.Printf("failed to open file: %s\n", *name)
 		os.Exit(1)
 	}
-	content, err := formatFile(f)
+	content, err := format(f)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -43,7 +43,7 @@ func main() {
 	fmt.Println(content)
 }
 
-func formatFile(f *os.File) (string, error) {
+func format(f *os.File) (string, error) {
 	var result []string
 	var content []string
 	var reader = bufio.NewReader(f)
@@ -94,7 +94,7 @@ func parseStm(content string) (string, error) {
 			result = append(result, stm.String()+"\n")
 			continue
 		}
-		str, err := format.AlertStmt(*alert).Format()
+		str, err := promfmt.AlertStmt(*alert).Format()
 		if err != nil {
 			return "", err
 		}
