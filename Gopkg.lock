@@ -20,10 +20,16 @@
   revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
 
 [[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "ab9f9a6dab164b7d1246e0e688b0ab7b94d8553e"
+  revision = "83cd65fc365ace80eb6b6ecfc45203e43edfbc70"
 
 [[projects]]
   branch = "master"
@@ -50,6 +56,12 @@
   version = "v0.8.0"
 
 [[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/prometheus/client_golang"
   packages = ["prometheus"]
   revision = "c5b7fccd204277076155f10851dad72b76a49317"
@@ -65,7 +77,7 @@
   branch = "master"
   name = "github.com/prometheus/common"
   packages = ["expfmt","internal/bitbucket.org/ww/goautoneg","log","model"]
-  revision = "61f87aac8082fa8c3c5655c7608d7478d46ac2ad"
+  revision = "bc8b88226a1210b016e9993b1d75f858c9c8f778"
 
 [[projects]]
   branch = "master"
@@ -86,6 +98,12 @@
   version = "v1.0.3"
 
 [[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
+  version = "v1.1.4"
+
+[[projects]]
   branch = "master"
   name = "github.com/syndtr/goleveldb"
   packages = ["leveldb","leveldb/cache","leveldb/comparer","leveldb/errors","leveldb/filter","leveldb/iterator","leveldb/journal","leveldb/memdb","leveldb/opt","leveldb/storage","leveldb/table","leveldb/util"]
@@ -95,19 +113,19 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "b176d7def5d71bdd214203491f89843ed217f420"
+  revision = "81e90905daefcd6fd217b62423c0908922eadb30"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "1c05540f6879653db88113bc4a2b70aec4bd491f"
+  revision = "66aacef3dd8a676686c7ae3716979581e8b03c47"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows","windows/registry","windows/svc/eventlog"]
-  revision = "9f7170bcd8e9f4d3691c06401119c46a769a1e03"
+  revision = "a07a691ac871746ae690ccf3ab217363b2144531"
 
 [[projects]]
   name = "gopkg.in/alecthomas/kingpin.v2"
@@ -118,6 +136,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "316b8945411fe8f6644a3d948a51cfbbc3d79d3cf89b326af9221cb7340dca0e"
+  inputs-digest = "b570a1acce37dd923fa7d8838e54ce79a4e9195578f5d91517867b568ca280b7"
   solver-name = "gps-cdcl"
   solver-version = 1

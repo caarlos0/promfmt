@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,17 +11,20 @@ import (
 	"github.com/caarlos0/promfmt/promfmt"
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/promql"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var write = flag.Bool("w", false, "override the source file with the formatted file")
-var name = flag.String("f", "", "file to format")
+var (
+	write = kingpin.Flag(
+		"write", "override the source file with the formatted file",
+	).Short('w').Bool()
+	name = kingpin.Arg(
+		"file", "path to file to be formatted",
+	).Required().String()
+)
 
 func main() {
-	flag.Parse()
-	if *name == "" {
-		fmt.Println("missing file name")
-		os.Exit(2)
-	}
+	kingpin.Parse()
 	content, err := formatFile(*name)
 	if err != nil {
 		fmt.Printf("%s: %v\n", *name, err)
