@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,30 +11,34 @@ import (
 	"github.com/caarlos0/promfmt/promfmt"
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/promql"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var write = flag.Bool("w", false, "override the source file with the formatted file")
-var name = flag.String("f", "", "file to format")
+var (
+	version = "master"
+	app     = kingpin.New("promfmt", "formats prometheus' .rules files")
+	write   = app.Flag("write", "override the source file with the formatted file").Short('w').Bool()
+	name    = app.Arg("file", "path to file to be formatted").Required().String()
+)
 
 func main() {
-	flag.Parse()
-	if *name == "" {
-		fmt.Println("missing file name")
-		os.Exit(2)
+	app.Version("promfmt version " + version)
+	kingpin.MustParse(app.Parse(os.Args[1:]))
+	if err := processFile(*name, *write); err != nil {
+		kingpin.Fatalf("%s: %v\n", *name, err)
 	}
-	content, err := formatFile(*name)
+}
+
+func processFile(name string, write bool) error {
+	content, err := formatFile(name)
 	if err != nil {
-		fmt.Printf("%s: %v\n", *name, err)
-		os.Exit(1)
+		return err
 	}
-	if *write {
-		if err := ioutil.WriteFile(*name, []byte(content), 0644); err != nil {
-			fmt.Printf("%s: %v\n", *name, err)
-			os.Exit(1)
-		}
-		return
+	if write {
+		return ioutil.WriteFile(name, []byte(content), 0644)
 	}
 	fmt.Println(content)
+	return nil
 }
 
 func formatFile(name string) (string, error) {
@@ -43,11 +46,7 @@ func formatFile(name string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to open file")
 	}
-	content, err := format(f)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to format file")
-	}
-	return content, nil
+	return format(f)
 }
 
 func format(f *os.File) (string, error) {
