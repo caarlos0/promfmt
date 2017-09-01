@@ -16,19 +16,14 @@ import (
 
 var (
 	version = "master"
-
-	write = kingpin.Flag(
-		"write", "override the source file with the formatted file",
-	).Short('w').Bool()
-
-	name = kingpin.Arg(
-		"file", "path to file to be formatted",
-	).Required().String()
+	app     = kingpin.New("promfmt", "formats prometheus' .rules files")
+	write   = app.Flag("write", "override the source file with the formatted file").Short('w').Bool()
+	name    = app.Arg("file", "path to file to be formatted").Required().String()
 )
 
 func main() {
-	kingpin.Version(version)
-	kingpin.Parse()
+	app.Version("promfmt version " + version)
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 	content, err := formatFile(*name)
 	if err != nil {
 		kingpin.Fatalf("%s: %v\n", *name, err)
