@@ -48,5 +48,5 @@ brew install caarlos0/tap/promfmt
 Or, on Linux or macOS boxes without homebrew:
 
 ```console
-RUN curl -sfL https://git.io/promfmt | bash -s -- -b /usr/local/bin
+curl -sfL https://git.io/promfmt | bash -s -- -b /usr/local/bin
 ```
