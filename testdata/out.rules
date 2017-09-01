@@ -24,3 +24,5 @@ ALERT MyAlert
 		description = "a very high priority alert with {{ $value }}",
 		foo = "bar",
 	}
+
+# several empty lines at the end, as well as a comment in the middle of them

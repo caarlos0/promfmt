@@ -64,6 +64,7 @@ func format(f *os.File) (string, error) {
 		if s == "\n" || s == "" {
 			if len(content) == 0 {
 				if eof {
+					result = append(result, "")
 					break
 				}
 				continue

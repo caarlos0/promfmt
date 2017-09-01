@@ -2,3 +2,4 @@ vendor
 coverage.txt
 coverage.out
 dist
+debug.test
