@@ -49,7 +49,7 @@ func processFile(name string, opts options) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to open file")
 	}
-	content, err := format(bytes.NewBuffer([]byte(original)))
+	content, err := format(bytes.NewBuffer(original))
 	if err != nil {
 		return "", err
 	}
@@ -57,12 +57,7 @@ func processFile(name string, opts options) (string, error) {
 		return content, nil
 	}
 	if opts.diffs {
-		diff, err := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
-			A:        difflib.SplitLines(string(original)),
-			B:        difflib.SplitLines(content),
-			FromFile: name,
-			ToFile:   fmt.Sprintf("formatted %s", name),
-		})
+		diff, err := diffContents(original, content)
 		if err != nil {
 			return content, err
 		}
@@ -75,6 +70,15 @@ func processFile(name string, opts options) (string, error) {
 		return content, fmt.Errorf("file does not match")
 	}
 	return content, nil
+}
+
+func diffContents(original, formatted string) (string, error) {
+	return difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+		A:        difflib.SplitLines(string(original)),
+		B:        difflib.SplitLines(formatted),
+		FromFile: name,
+		ToFile:   fmt.Sprintf("formatted %s", name),
+	})
 }
 
 func format(f io.Reader) (string, error) {
