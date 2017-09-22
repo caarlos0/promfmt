@@ -21,7 +21,7 @@ var (
 	app     = kingpin.New("promfmt", "promfmt formats prometheus' .rules files")
 	write   = app.Flag("write", "override the source file with the formatted file").Short('w').Bool()
 	fail    = app.Flag("fail", "fails if the file is not in the expected format").Short('f').Bool()
-	diffs   = app.Flag("diffs", "prints the diff between the file and the formatted file").Short('d').Bool()
+	diffs   = app.Flag("diff", "prints the diff between the file and the formatted file instead of the end result").Short('d').Bool()
 	name    = app.Arg("file", "path to file to be formatted").Required().ExistingFile()
 )
 
