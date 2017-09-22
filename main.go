@@ -70,7 +70,6 @@ func format(f *os.File) (string, error) {
 		}
 		if len(content) == 0 {
 			if eof {
-				result = append(result, "")
 				break
 			}
 			continue

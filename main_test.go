@@ -28,7 +28,7 @@ func TestProcessFile(t *testing.T) {
 	assert.NoError(processFile("testdata/in.rules", false))
 	after, err := ioutil.ReadFile("testdata/in.rules")
 	assert.NoError(err)
-	assert.Equal(before, after)
+	assert.Equal(string(before), string(after))
 }
 
 func TestProcessInvalidFile(t *testing.T) {
@@ -45,7 +45,7 @@ func TestProcessAndWriteFile(t *testing.T) {
 	assert.NoError(processFile(file, true))
 	after, err := ioutil.ReadFile(file)
 	assert.NoError(err)
-	assert.Equal(expected, after)
+	assert.Equal(string(expected), string(after))
 }
 
 func TestFormatInvalidFile(t *testing.T) {

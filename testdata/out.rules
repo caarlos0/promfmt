@@ -46,3 +46,6 @@ ALERT MyAlert
   }
 
 # several empty lines at the end, as well as a comment in the middle of them
+ALERT foo
+  IF bar == 0
+  FOR 1m
