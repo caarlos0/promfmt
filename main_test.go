@@ -44,8 +44,10 @@ func TestProcessAndWriteFile(t *testing.T) {
 	var assert = assert.New(t)
 	expected, err := ioutil.ReadFile("testdata/out.rules")
 	assert.NoError(err)
+	in, err := ioutil.ReadFile("testdata/in.rules")
+	assert.NoError(err)
 	var file = filepath.Join(os.TempDir(), "test.rules")
-	assert.NoError(ioutil.WriteFile(file, expected, 0644))
+	assert.NoError(ioutil.WriteFile(file, in, 0644))
 	_, err = processFile(file, options{
 		fail:  false,
 		diffs: false,
@@ -75,4 +77,14 @@ func TestFormatFileDontExist(t *testing.T) {
 		write: false,
 	})
 	assert.Error(err)
+}
+
+func TestFormatFileAlreadyFormatted(t *testing.T) {
+	var assert = assert.New(t)
+	_, err := processFile("testdata/out.rules", options{
+		fail:  true,
+		diffs: false,
+		write: false,
+	})
+	assert.NoError(err)
 }

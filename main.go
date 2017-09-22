@@ -81,6 +81,8 @@ func diffContents(name, original, formatted string) (string, error) {
 	})
 }
 
+// TODO: since we are already reading the entire file before here, maybe
+// simplify to a for-range loop on the lines or something like that...
 func format(f io.Reader) (string, error) {
 	var result []string
 	var content []string
