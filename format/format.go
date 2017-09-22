@@ -1,4 +1,4 @@
-package promfmt
+package format
 
 import (
 	"bytes"
