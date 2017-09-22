@@ -13,7 +13,7 @@ func TestFormat(t *testing.T) {
 	var assert = assert.New(t)
 
 	out, err := processFile("testdata/in.rules", options{
-		check: false,
+		fail:  false,
 		diffs: false,
 		write: false,
 	})
@@ -30,7 +30,7 @@ func TestProcessFile(t *testing.T) {
 	before, err := ioutil.ReadFile("testdata/in.rules")
 	assert.NoError(err)
 	_, err = processFile("testdata/in.rules", options{
-		check: true,
+		fail:  true,
 		diffs: true,
 		write: false,
 	})
@@ -47,7 +47,7 @@ func TestProcessAndWriteFile(t *testing.T) {
 	var file = filepath.Join(os.TempDir(), "test.rules")
 	assert.NoError(ioutil.WriteFile(file, expected, 0644))
 	_, err = processFile(file, options{
-		check: false,
+		fail:  false,
 		diffs: false,
 		write: true,
 	})
@@ -60,7 +60,7 @@ func TestProcessAndWriteFile(t *testing.T) {
 func TestFormatInvalidFile(t *testing.T) {
 	var assert = assert.New(t)
 	_, err := processFile("testdata/invalid.rules", options{
-		check: false,
+		fail:  false,
 		diffs: false,
 		write: false,
 	})
@@ -70,7 +70,7 @@ func TestFormatInvalidFile(t *testing.T) {
 func TestFormatFileDontExist(t *testing.T) {
 	var assert = assert.New(t)
 	_, err := processFile("testdata/nope.rules", options{
-		check: false,
+		fail:  false,
 		diffs: false,
 		write: false,
 	})

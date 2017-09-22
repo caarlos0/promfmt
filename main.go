@@ -20,13 +20,13 @@ var (
 	version = "master"
 	app     = kingpin.New("promfmt", "promfmt formats prometheus' .rules files")
 	write   = app.Flag("write", "override the source file with the formatted file").Short('w').Bool()
-	check   = app.Flag("check", "fails if the file is not in the expected format").Short('c').Short('f').Bool()
+	fail    = app.Flag("fail", "fails if the file is not in the expected format").Short('f').Bool()
 	diffs   = app.Flag("diffs", "prints the diff between the file and the formatted file").Short('d').Bool()
 	name    = app.Arg("file", "path to file to be formatted").Required().ExistingFile()
 )
 
 type options struct {
-	write, check, diffs bool
+	write, fail, diffs bool
 }
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 	opts := options{
 		write: *write,
-		check: *check,
+		fail:  *fail,
 		diffs: *diffs,
 	}
 	if _, err := processFile(*name, opts); err != nil {
@@ -71,7 +71,7 @@ func processFile(name string, opts options) (string, error) {
 	if opts.write {
 		return content, ioutil.WriteFile(name, []byte(content), 0644)
 	}
-	if opts.check {
+	if opts.fail {
 		return content, fmt.Errorf("file does not match")
 	}
 	return content, nil
