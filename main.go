@@ -57,7 +57,7 @@ func processFile(name string, opts options) (string, error) {
 		return content, nil
 	}
 	if opts.diffs {
-		diff, err := diffContents(original, content)
+		diff, err := diffContents(name, string(original), content)
 		if err != nil {
 			return content, err
 		}
@@ -72,9 +72,9 @@ func processFile(name string, opts options) (string, error) {
 	return content, nil
 }
 
-func diffContents(original, formatted string) (string, error) {
+func diffContents(name, original, formatted string) (string, error) {
 	return difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
-		A:        difflib.SplitLines(string(original)),
+		A:        difflib.SplitLines(original),
 		B:        difflib.SplitLines(formatted),
 		FromFile: name,
 		ToFile:   fmt.Sprintf("formatted %s", name),
