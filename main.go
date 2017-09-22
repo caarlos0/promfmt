@@ -49,7 +49,7 @@ func formatFile(name string) (string, error) {
 	return format(f)
 }
 
-func format(f *os.File) (string, error) {
+func format(f io.Reader) (string, error) {
 	var result []string
 	var content []string
 	var reader = bufio.NewReader(f)
@@ -61,7 +61,7 @@ func format(f *os.File) (string, error) {
 		}
 		var s = string(line)
 		if strings.HasPrefix(s, "#") {
-			result = append(result, string(s))
+			result = append(result, s)
 			continue
 		}
 		if s != "\n" && s != "" {
