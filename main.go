@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/caarlos0/promfmt/promfmt"
+	promfmt "github.com/caarlos0/promfmt/format"
 	"github.com/pkg/errors"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/prometheus/prometheus/promql"
