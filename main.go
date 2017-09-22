@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/caarlos0/promfmt/promfmt"
 	"github.com/pkg/errors"
+	"github.com/pmezard/go-difflib/difflib"
 	"github.com/prometheus/prometheus/promql"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -18,35 +20,61 @@ var (
 	version = "master"
 	app     = kingpin.New("promfmt", "promfmt formats prometheus' .rules files")
 	write   = app.Flag("write", "override the source file with the formatted file").Short('w').Bool()
-	name    = app.Arg("file", "path to file to be formatted").Required().String()
+	check   = app.Flag("check", "fails if the file is not in the expected format").Short('c').Short('f').Bool()
+	diffs   = app.Flag("diffs", "prints the diff between the file and the formatted file").Short('d').Bool()
+	name    = app.Arg("file", "path to file to be formatted").Required().ExistingFile()
 )
+
+type options struct {
+	write, check, diffs bool
+}
 
 func main() {
 	app.Version("promfmt version " + version)
+	app.HelpFlag.Short('h')
+	app.VersionFlag.Short('v')
 	kingpin.MustParse(app.Parse(os.Args[1:]))
-	if err := processFile(*name, *write); err != nil {
+	opts := options{
+		write: *write,
+		check: *check,
+		diffs: *diffs,
+	}
+	if _, err := processFile(*name, opts); err != nil {
 		kingpin.Fatalf("%s: %v\n", *name, err)
 	}
 }
 
-func processFile(name string, write bool) error {
-	content, err := formatFile(name)
-	if err != nil {
-		return err
-	}
-	if write {
-		return ioutil.WriteFile(name, []byte(content), 0644)
-	}
-	fmt.Println(content)
-	return nil
-}
-
-func formatFile(name string) (string, error) {
-	f, err := os.Open(name)
+func processFile(name string, opts options) (string, error) {
+	original, err := ioutil.ReadFile(name)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to open file")
 	}
-	return format(f)
+	content, err := format(bytes.NewBuffer([]byte(original)))
+	if err != nil {
+		return "", err
+	}
+	if string(original) == content {
+		return content, nil
+	}
+	if opts.diffs {
+		diff, err := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+			A:        difflib.SplitLines(string(original)),
+			B:        difflib.SplitLines(content),
+			FromFile: name,
+			ToFile:   fmt.Sprintf("formatted %s", name),
+		})
+		if err != nil {
+			return content, err
+		}
+		fmt.Println(diff)
+	}
+	if opts.write {
+		return content, ioutil.WriteFile(name, []byte(content), 0644)
+	}
+	if opts.check {
+		return content, fmt.Errorf("file does not match")
+	}
+	return content, nil
 }
 
 func format(f io.Reader) (string, error) {
