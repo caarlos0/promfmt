@@ -55,10 +55,16 @@ ALERT Super_Alert
 
 ```console
 # format and prints the output to stdout
-promfmt FILE 
+promfmt FILE
 
 # format and rewrites the file
-promfmt -w FILE
+promfmt --write FILE
+
+# prints the diff
+promfmt --diff FILE
+
+# fails if not formatted
+promfmt --fail FILE
 ```
 
 
