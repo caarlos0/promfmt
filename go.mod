@@ -10,5 +10,6 @@ require (
 	github.com/prometheus/prometheus v1.8.2
 	github.com/stretchr/testify v1.5.1
 	github.com/syndtr/goleveldb v1.0.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
